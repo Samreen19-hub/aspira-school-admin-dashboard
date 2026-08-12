@@ -232,11 +232,11 @@ export default function DashboardPage() {
           <div className="bg-card rounded-xl border border-border p-4">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-base font-semibold text-foreground">Gallery</h2>
-              <Link href="/dashboard/profile" className="text-xs text-primary font-medium hover:underline">View All</Link>
-              <>
+              <div className="flex items-center gap-2">
+                <Link href="/dashboard/profile" className="text-xs text-primary font-medium hover:underline">View All</Link>
                 <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotos} />
                 <Button variant="ghost" size="sm" className="h-7 text-xs text-primary" onClick={() => fileInputRef.current?.click()}><Plus className="size-3" /> Add Photos</Button>
-              </>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
               {gallery.slice(0, 5).map((photo, index) => <img key={`${photo}-${index}`} src={photo} alt={`School gallery photo ${index + 1}`} className={`rounded-lg object-cover w-full ${index === 0 ? "h-28 col-span-2" : "h-24"}`} />)}
