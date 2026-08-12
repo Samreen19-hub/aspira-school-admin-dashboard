@@ -17,6 +17,7 @@ export type SchoolInfo = {
   state: string
   pin: string
   address: string
+  logo: string | null
 }
 
 const defaultSchool: SchoolInfo = {
@@ -25,6 +26,7 @@ const defaultSchool: SchoolInfo = {
   description: "Greenfield High School is committed to nurturing young minds through quality education, strong values, and holistic development. We aim to create a safe, inclusive, and inspiring environment where every child thrives.",
   phone: "+91 98765 43210", email: "admissions@greenfieldschool.edu.in", website: "www.greenfieldschool.edu.in",
   city: "Bangalore", state: "Karnataka", pin: "560100", address: "Greenfield High School, Knowledge Park, Bengaluru, Karnataka 560100",
+  logo: null,
 }
 
 const defaultGallery = [
@@ -36,27 +38,39 @@ const defaultGallery = [
 type SchoolContextValue = { school: SchoolInfo; gallery: string[]; updateSchool: (updates: Partial<SchoolInfo>) => void; addPhotos: (photos: string[]) => void }
 const SchoolContext = createContext<SchoolContextValue | null>(null)
 
+function readStorage(key: string) {
+  try { return window.localStorage.getItem(key) } catch { return null }
+}
+
+function writeStorage(key: string, value: string) {
+  try { window.localStorage.setItem(key, value) } catch { /* storage may be unavailable */ }
+}
+
 export function SchoolProvider({ children }: { children: ReactNode }) {
-  const [school, setSchool] = useState(defaultSchool)
+  const [school, setSchool] = useState<SchoolInfo>(defaultSchool)
   const [gallery, setGallery] = useState(defaultGallery)
+
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("aspira-school")
+      const saved = readStorage("aspira-school")
       if (saved) setSchool({ ...defaultSchool, ...JSON.parse(saved) })
-      const savedGallery = localStorage.getItem("aspira-gallery")
+      const savedGallery = readStorage("aspira-gallery")
       if (savedGallery) setGallery(JSON.parse(savedGallery))
     } catch { /* use defaults when storage is unavailable */ }
   }, [])
+
   const updateSchool = (updates: Partial<SchoolInfo>) => setSchool((current) => {
     const next = { ...current, ...updates }
-    localStorage.setItem("aspira-school", JSON.stringify(next))
+    writeStorage("aspira-school", JSON.stringify(next))
     return next
   })
+
   const addPhotos = (photos: string[]) => setGallery((current) => {
     const next = [...current, ...photos]
-    localStorage.setItem("aspira-gallery", JSON.stringify(next))
+    writeStorage("aspira-gallery", JSON.stringify(next))
     return next
   })
+
   const value = useMemo(() => ({ school, gallery, updateSchool, addPhotos }), [school, gallery])
   return <SchoolContext.Provider value={value}>{children}</SchoolContext.Provider>
 }

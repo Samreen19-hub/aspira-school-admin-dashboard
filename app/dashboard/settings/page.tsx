@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState, type ChangeEvent } from "react"
 import { Save, School, User, Bell, Shield, Palette, Globe, Upload, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,6 +17,22 @@ export default function SettingsPage() {
   const [tab, setTab] = useState("school")
   const [showPassword, setShowPassword] = useState(false)
   const { school, updateSchool } = useSchool()
+  const logoInputRef = useRef<HTMLInputElement>(null)
+  const [logoDraft, setLogoDraft] = useState<string | null>(school.logo)
+  const [logoError, setLogoError] = useState("")
+  const [form, setForm] = useState(school)
+  useEffect(() => { setForm(school); setLogoDraft(school.logo) }, [school])
+  const updateField = (field: keyof typeof form, value: string) => setForm((current) => ({ ...current, [field]: value }))
+  const handleLogo = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) { setLogoError('Please choose a PNG, JPG, or WEBP image.'); return }
+    if (file.size > 2 * 1024 * 1024) { setLogoError('Logo must be 2MB or smaller.'); return }
+    setLogoError("")
+    const reader = new FileReader()
+    reader.onload = () => setLogoDraft(String(reader.result))
+    reader.readAsDataURL(file)
+  }
   const [notifications, setNotifications] = useState({
     emailAlerts: true,
     smsAlerts: false,
@@ -27,10 +43,7 @@ export default function SettingsPage() {
   })
 
   const handleSave = (section: string) => {
-    if (section === "School") {
-      const value = (id: string) => (document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement)?.value ?? ""
-      updateSchool({ name: value("school-name"), udise: value("udise"), board: value("board"), established: value("year"), type: value("type"), grades: value("grades"), description: value("description"), phone: value("phone"), email: value("email"), website: value("website"), city: value("city"), state: value("state"), pin: value("pin"), address: value("address") })
-    }
+    if (section === "School") updateSchool({ ...form, logo: logoDraft })
     toast.success(`${section} settings saved successfully!`)
   }
 
@@ -67,30 +80,32 @@ export default function SettingsPage() {
 
             {/* School logo */}
             <div className="flex items-center gap-4">
-              <div className="size-16 rounded-xl bg-primary/10 flex items-center justify-center border border-border">
-                <School className="size-8 text-primary" />
+              <div className="size-16 rounded-xl bg-primary/10 flex items-center justify-center border border-border overflow-hidden">
+                {logoDraft ? <img src={logoDraft} alt={`${school.name} logo preview`} className="size-full object-cover" /> : <School className="size-8 text-primary" />}
               </div>
               <div>
                 <p className="text-sm font-medium text-foreground">School Logo</p>
-                <p className="text-xs text-muted-foreground mb-2">PNG, JPG up to 2MB</p>
-                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => toast.info("Upload logo")}>
+                <p className="text-xs text-muted-foreground mb-2">PNG, JPG, or WEBP up to 2MB</p>
+                <input ref={logoInputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleLogo} />
+                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => logoInputRef.current?.click()}>
                   <Upload className="size-3" /> Upload Logo
                 </Button>
+                {logoError && <p className="text-xs text-destructive mt-1">{logoError}</p>}
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                { label: "School Name", defaultValue: school.name, id: "school-name" },
+                { label: "School Name", defaultValue: school.name, id: "name" },
                 { label: "UDISE Code", defaultValue: school.udise, id: "udise" },
                 { label: "Affiliation Board", defaultValue: school.board, id: "board" },
-                { label: "Established Year", defaultValue: school.established, id: "year" },
+                { label: "Established Year", defaultValue: school.established, id: "established" },
                 { label: "School Type", defaultValue: school.type, id: "type" },
                 { label: "Grades Offered", defaultValue: school.grades, id: "grades" },
               ].map(f => (
                 <div key={f.id} className="flex flex-col gap-1.5">
                   <Label htmlFor={f.id} className="text-xs">{f.label}</Label>
-                  <Input id={f.id} defaultValue={f.defaultValue} className="h-8 text-sm" />
+                  <Input id={f.id} value={f.id in form ? String(form[f.id as keyof typeof form]) : undefined} onChange={(event) => f.id in form && updateField(f.id as keyof typeof form, event.target.value)} className="h-8 text-sm" />
                 </div>
               ))}
             </div>
@@ -98,7 +113,7 @@ export default function SettingsPage() {
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs">School Description</Label>
               <Textarea
-                id="description" defaultValue={school.description}
+                id="description" value={form.description} onChange={(event) => updateField("description", event.target.value)}
                 className="text-sm resize-none"
                 rows={3}
               />
@@ -115,7 +130,7 @@ export default function SettingsPage() {
               ].map(f => (
                 <div key={f.id} className="flex flex-col gap-1.5">
                   <Label htmlFor={f.id} className="text-xs">{f.label}</Label>
-                  <Input id={f.id} defaultValue={f.defaultValue} className="h-8 text-sm" />
+                  <Input id={f.id} value={f.id in form ? String(form[f.id as keyof typeof form]) : undefined} onChange={(event) => f.id in form && updateField(f.id as keyof typeof form, event.target.value)} className="h-8 text-sm" />
                 </div>
               ))}
             </div>
@@ -123,7 +138,7 @@ export default function SettingsPage() {
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs">Full Address</Label>
               <Textarea
-                id="address" defaultValue={school.address}
+                id="address" value={form.address} onChange={(event) => updateField("address", event.target.value)}
                 className="text-sm resize-none"
                 rows={2}
               />

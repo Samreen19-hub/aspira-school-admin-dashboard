@@ -448,19 +448,19 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-2 text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
               <Phone className="size-3.5 shrink-0 text-primary" />
-              +91 98765 43210
+              {school.phone}
             </div>
             <div className="flex items-center gap-2">
               <Mail className="size-3.5 shrink-0 text-primary" />
-              admissions@greenfieldschool.edu.in
+              {school.email}
             </div>
             <div className="flex items-start gap-2">
               <MapPin className="size-3.5 shrink-0 text-primary mt-0.5" />
-              Greenfield High School, Knowledge Park, Bengaluru, Karnataka 560100
+              {school.address}
             </div>
             <div className="flex items-center gap-2">
               <Globe className="size-3.5 shrink-0 text-primary" />
-              <a href="#" className="text-primary hover:underline">www.greenfieldschool.edu.in</a>
+              <a href={`https://${school.website.replace(/^https?:\/\//, "")}`} className="text-primary hover:underline">{school.website}</a>
             </div>
           </div>
           <div className="flex gap-2 mt-3">

@@ -3,6 +3,7 @@
 import { Users, GraduationCap, BookOpen, DollarSign, TrendingUp, Award, Calendar, Bell } from "lucide-react"
 import Link from "next/link"
 import { applicationTrend, feesData, students, teachers, classes } from "@/lib/mock-data"
+import { useSchool } from "@/components/dashboard/school-provider"
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -33,11 +34,12 @@ const feeStatus = [
 ]
 
 export default function OverviewPage() {
+  const { school } = useSchool()
   return (
     <div className="p-4 lg:p-6 flex flex-col gap-5">
       <div>
         <h1 className="text-xl font-bold text-foreground">School Overview</h1>
-        <p className="text-sm text-muted-foreground">A comprehensive snapshot of Greenfield High School — May 2025</p>
+        <p className="text-sm text-muted-foreground">A comprehensive snapshot of {school.name} — May 2025</p>
       </div>
 
       {/* Quick Stats Grid */}
