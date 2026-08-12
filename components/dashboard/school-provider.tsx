@@ -35,7 +35,7 @@ const defaultGallery = [
   "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=500&h=360&fit=crop&q=80",
 ]
 
-type SchoolContextValue = { school: SchoolInfo; gallery: string[]; updateSchool: (updates: Partial<SchoolInfo>) => void; addPhotos: (photos: string[]) => void }
+type SchoolContextValue = { school: SchoolInfo; gallery: string[]; updateSchool: (updates: Partial<SchoolInfo>) => void; addPhotos: (photos: string[]) => void; removePhoto: (photo: string) => void }
 const SchoolContext = createContext<SchoolContextValue | null>(null)
 
 function readStorage(key: string) {
@@ -71,7 +71,13 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     return next
   })
 
-  const value = useMemo(() => ({ school, gallery, updateSchool, addPhotos }), [school, gallery])
+  const removePhoto = (photo: string) => setGallery((current) => {
+    const next = current.filter((item) => item !== photo)
+    writeStorage("aspira-gallery", JSON.stringify(next))
+    return next
+  })
+
+  const value = useMemo(() => ({ school, gallery, updateSchool, addPhotos, removePhoto }), [school, gallery])
   return <SchoolContext.Provider value={value}>{children}</SchoolContext.Provider>
 }
 
