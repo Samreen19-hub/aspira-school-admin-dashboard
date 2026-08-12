@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState, type ChangeEvent } from "react"
 import Link from "next/link"
 import {
   Users,
@@ -47,6 +47,7 @@ import {
 import { StatCard } from "@/components/dashboard/stat-card"
 import { ClientOnly } from "@/components/dashboard/client-only"
 import { toast } from "sonner"
+import { useSchool } from "@/components/dashboard/school-provider"
 
 const subjectColors: Record<string, string> = {
   "1": "bg-amber-100 text-amber-700",
@@ -84,6 +85,16 @@ export default function DashboardPage() {
   const [reviewIndex, setReviewIndex] = useState(0)
   const [trendPeriod, setTrendPeriod] = useState("Monthly")
   const [exporting, setExporting] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { school, gallery, addPhotos } = useSchool()
+
+  const handlePhotos = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? [])
+    if (!files.length) return
+    addPhotos(files.map((file) => URL.createObjectURL(file)))
+    toast.success(`${files.length} photo${files.length > 1 ? "s" : ""} added to the gallery`)
+    event.target.value = ""
+  }
 
   const handleExport = () => {
     setExporting(true)
@@ -183,9 +194,9 @@ export default function DashboardPage() {
           <div className="bg-card rounded-xl border border-border p-4">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-base font-semibold text-foreground">About Our School</h2>
-              <Button variant="ghost" size="sm" className="text-xs gap-1 h-7">
+              <Link href="/dashboard/settings?tab=school"><Button variant="ghost" size="sm" className="text-xs gap-1 h-7">
                 <span className="text-primary">Edit Info</span>
-              </Button>
+              </Button></Link>
             </div>
             <div className="flex gap-3 mb-3">
               <img
@@ -194,16 +205,16 @@ export default function DashboardPage() {
                 className="rounded-lg object-cover w-32 h-24 shrink-0"
               />
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Greenfield High School is committed to nurturing young minds through quality education, strong values, and holistic development. We aim to create a safe, inclusive, and inspiring environment where every child thrives.
+                {school.description}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm mb-3">
               {[
-                { label: "Established", value: "2010" },
-                { label: "School Type", value: "Co-educational" },
-                { label: "Affiliation", value: "CBSE" },
-                { label: "Grades", value: "Nursery - Grade 12" },
-                { label: "Location", value: "Bangalore, Karnataka" },
+                { label: "Established", value: school.established },
+                { label: "School Type", value: school.type },
+                { label: "Affiliation", value: school.board },
+                { label: "Grades", value: school.grades },
+                { label: "Location", value: `${school.city}, ${school.state}` },
               ].map(({ label, value }) => (
                 <div key={label} className="flex gap-1">
                   <span className="text-muted-foreground shrink-0">{label}</span>
@@ -211,31 +222,23 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
-            <Button variant="outline" size="sm" className="w-full text-xs justify-between">
+            <Link href="/dashboard/profile"><Button variant="outline" size="sm" className="w-full text-xs justify-between">
               View School Profile
               <ArrowRight className="size-3" />
-            </Button>
+            </Button></Link>
           </div>
 
           {/* Gallery */}
           <div className="bg-card rounded-xl border border-border p-4">
-            <h2 className="text-base font-semibold text-foreground mb-3">Gallery</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-base font-semibold text-foreground">Gallery</h2>
+              <>
+                <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotos} />
+                <Button variant="ghost" size="sm" className="h-7 text-xs text-primary" onClick={() => fileInputRef.current?.click()}><Plus className="size-3" /> Add Photos</Button>
+              </>
+            </div>
             <div className="grid grid-cols-2 gap-2">
-              <img
-                src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=300&h=160&fit=crop&q=80"
-                alt="Students"
-                className="rounded-lg object-cover w-full h-28 col-span-2"
-              />
-              <img
-                src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=150&h=110&fit=crop&q=80"
-                alt="Library"
-                className="rounded-lg object-cover w-full h-24"
-              />
-              <img
-                src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=150&h=110&fit=crop&q=80"
-                alt="Sports"
-                className="rounded-lg object-cover w-full h-24"
-              />
+              {gallery.slice(0, 5).map((photo, index) => <img key={`${photo}-${index}`} src={photo} alt={`School gallery photo ${index + 1}`} className={`rounded-lg object-cover w-full ${index === 0 ? "h-28 col-span-2" : "h-24"}`} />)}
             </div>
           </div>
         </div>

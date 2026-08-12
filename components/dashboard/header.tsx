@@ -14,7 +14,9 @@ import {
   Settings,
   LogOut,
   User,
+  HelpCircle,
 } from "lucide-react"
+import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,9 +34,9 @@ import { cn } from "@/lib/utils"
 
 const topNavItems = [
   { href: "/dashboard", icon: Home, label: "Home" },
-  { href: "/dashboard/communities", icon: Network, label: "Network" },
+  { href: "/dashboard/network", icon: Network, label: "Network" },
   { href: "/dashboard/messages", icon: Mail, label: "Messages", badge: 13 },
-  { href: "/dashboard/notices", icon: Bell, label: "Notifications", badge: 4 },
+  { href: "/dashboard/notifications", icon: Bell, label: "Notifications", badge: 4 },
 ]
 
 export function DashboardHeader() {
@@ -115,14 +117,17 @@ export function DashboardHeader() {
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => router.push("/dashboard/settings")}>
+          <DropdownMenuItem onSelect={() => router.push("/dashboard/profile")}>
             <User className="size-4 mr-2" />Profile
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => router.push("/dashboard/settings")}>
             <Settings className="size-4 mr-2" />Settings
           </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => toast.info("Support center coming soon") }>
+            <HelpCircle className="size-4 mr-2" />Help & Support
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-destructive">
+          <DropdownMenuItem className="text-destructive" onSelect={() => toast.success("You have been signed out") }>
             <LogOut className="size-4 mr-2" />Sign Out
           </DropdownMenuItem>
         </DropdownMenuContent>

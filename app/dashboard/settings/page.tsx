@@ -11,10 +11,12 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
+import { useSchool } from "@/components/dashboard/school-provider"
 
 export default function SettingsPage() {
   const [tab, setTab] = useState("school")
   const [showPassword, setShowPassword] = useState(false)
+  const { school, updateSchool } = useSchool()
   const [notifications, setNotifications] = useState({
     emailAlerts: true,
     smsAlerts: false,
@@ -25,6 +27,10 @@ export default function SettingsPage() {
   })
 
   const handleSave = (section: string) => {
+    if (section === "School") {
+      const value = (id: string) => (document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement)?.value ?? ""
+      updateSchool({ name: value("school-name"), udise: value("udise"), board: value("board"), established: value("year"), type: value("type"), grades: value("grades"), description: value("description"), phone: value("phone"), email: value("email"), website: value("website"), city: value("city"), state: value("state"), pin: value("pin"), address: value("address") })
+    }
     toast.success(`${section} settings saved successfully!`)
   }
 
@@ -75,12 +81,12 @@ export default function SettingsPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                { label: "School Name", defaultValue: "Greenfield High School", id: "school-name" },
-                { label: "UDISE Code", defaultValue: "29010102001", id: "udise" },
-                { label: "Affiliation Board", defaultValue: "CBSE", id: "board" },
-                { label: "Established Year", defaultValue: "2010", id: "year" },
-                { label: "School Type", defaultValue: "Co-educational", id: "type" },
-                { label: "Grades Offered", defaultValue: "Nursery - Grade 12", id: "grades" },
+                { label: "School Name", defaultValue: school.name, id: "school-name" },
+                { label: "UDISE Code", defaultValue: school.udise, id: "udise" },
+                { label: "Affiliation Board", defaultValue: school.board, id: "board" },
+                { label: "Established Year", defaultValue: school.established, id: "year" },
+                { label: "School Type", defaultValue: school.type, id: "type" },
+                { label: "Grades Offered", defaultValue: school.grades, id: "grades" },
               ].map(f => (
                 <div key={f.id} className="flex flex-col gap-1.5">
                   <Label htmlFor={f.id} className="text-xs">{f.label}</Label>
@@ -92,7 +98,7 @@ export default function SettingsPage() {
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs">School Description</Label>
               <Textarea
-                defaultValue="Greenfield High School is committed to nurturing young minds through quality education, strong values, and holistic development. We aim to create a safe, inclusive, and inspiring environment where every child thrives."
+                id="description" defaultValue={school.description}
                 className="text-sm resize-none"
                 rows={3}
               />
@@ -117,7 +123,7 @@ export default function SettingsPage() {
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs">Full Address</Label>
               <Textarea
-                defaultValue="Greenfield High School, Knowledge Park, Bengaluru, Karnataka 560100"
+                id="address" defaultValue={school.address}
                 className="text-sm resize-none"
                 rows={2}
               />
