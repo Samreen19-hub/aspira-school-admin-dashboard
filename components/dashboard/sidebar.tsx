@@ -131,9 +131,11 @@ export function DashboardSidebar({ className }: { className?: string }) {
         <p className="text-[11px] text-muted-foreground mb-2 leading-relaxed">
           Unlock advanced analytics, priority support and more.
         </p>
-        <Button size="sm" className="w-full h-7 text-xs bg-primary hover:bg-primary/90 text-primary-foreground">
-          <Crown className="size-3" />
-          Upgrade Now
+        <Button asChild size="sm" className="w-full h-7 text-xs bg-primary hover:bg-primary/90 text-primary-foreground">
+          <Link href="/dashboard/upgrade">
+            <Crown className="size-3" />
+            Upgrade Now
+          </Link>
         </Button>
       </div>
 
