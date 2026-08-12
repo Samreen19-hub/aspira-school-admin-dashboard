@@ -14,7 +14,9 @@ import {
   Settings,
   LogOut,
   User,
+  HelpCircle,
 } from "lucide-react"
+import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,16 +31,18 @@ import {
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { DashboardSidebar } from "./sidebar"
 import { cn } from "@/lib/utils"
+import { useSchool } from "@/components/dashboard/school-provider"
 
 const topNavItems = [
   { href: "/dashboard", icon: Home, label: "Home" },
-  { href: "/dashboard/communities", icon: Network, label: "Network" },
+  { href: "/dashboard/network", icon: Network, label: "Network" },
   { href: "/dashboard/messages", icon: Mail, label: "Messages", badge: 13 },
-  { href: "/dashboard/notices", icon: Bell, label: "Notifications", badge: 4 },
+  { href: "/dashboard/notifications", icon: Bell, label: "Notifications", badge: 4 },
 ]
 
 export function DashboardHeader() {
   const pathname = usePathname()
+  const { school } = useSchool()
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
@@ -104,10 +108,10 @@ export function DashboardHeader() {
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-2 pl-3 border-l border-border ml-1 focus:outline-none rounded-sm">
           <div className="size-8 rounded-full bg-muted border border-border overflow-hidden flex items-center justify-center">
-            <span className="text-xs font-bold text-foreground">GH</span>
+            {school.logo ? <img src={school.logo} alt={`${school.name} logo`} className="size-full object-cover" /> : <span className="text-xs font-bold text-foreground">{school.name.slice(0, 2).toUpperCase()}</span>}
           </div>
           <div className="hidden sm:block text-left">
-            <p className="text-xs font-semibold text-foreground leading-tight">Greenfield High School</p>
+            <p className="text-xs font-semibold text-foreground leading-tight">{school.name}</p>
             <p className="text-[10px] text-muted-foreground leading-tight">Admin</p>
           </div>
           <ChevronDown className="size-3 text-muted-foreground" />
@@ -115,14 +119,17 @@ export function DashboardHeader() {
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => router.push("/dashboard/settings")}>
+          <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
             <User className="size-4 mr-2" />Profile
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => router.push("/dashboard/settings")}>
+          <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
             <Settings className="size-4 mr-2" />Settings
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => toast.info("Support center coming soon")}>
+            <HelpCircle className="size-4 mr-2" />Help & Support
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-destructive">
+          <DropdownMenuItem className="text-destructive" onClick={() => toast.success("You have been signed out")}>
             <LogOut className="size-4 mr-2" />Sign Out
           </DropdownMenuItem>
         </DropdownMenuContent>
