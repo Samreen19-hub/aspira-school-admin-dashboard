@@ -119,17 +119,17 @@ export function DashboardHeader() {
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => router.push("/dashboard/profile")}>
+          <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
             <User className="size-4 mr-2" />Profile
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => router.push("/dashboard/settings")}>
+          <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
             <Settings className="size-4 mr-2" />Settings
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => toast.info("Support center coming soon") }>
+          <DropdownMenuItem onClick={() => toast.info("Support center coming soon")}>
             <HelpCircle className="size-4 mr-2" />Help & Support
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-destructive" onSelect={() => toast.success("You have been signed out") }>
+          <DropdownMenuItem className="text-destructive" onClick={() => toast.success("You have been signed out")}>
             <LogOut className="size-4 mr-2" />Sign Out
           </DropdownMenuItem>
         </DropdownMenuContent>
